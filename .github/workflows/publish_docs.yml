@@ -20,19 +20,24 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'  
+          node-version: '20'
 
       - name: Install dependencies
         run: |
-          cd customer-app
-          npm ci
-          cd ../notifications
-          npm ci
+          cd customer-app && npm ci
+          cd ../notifications && npm ci
 
       - name: Generate documentation
         run: |
-          npx @compodoc/compodoc -p customer-app/tsconfig.app.json -d docs/customer-app --silent
-          npx @compodoc/compodoc -p notifications/tsconfig.json -d docs/notifications --silent
+          mkdir -p docs/customer-app docs/notifications
+
+          cd customer-app
+          npx @compodoc/compodoc -p tsconfig.json -d ../docs/customer-app --silent
+          cd ..
+
+          cd notifications
+          npx @compodoc/compodoc -p tsconfig.json -d ../docs/notifications --silent
+          cd ..
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
