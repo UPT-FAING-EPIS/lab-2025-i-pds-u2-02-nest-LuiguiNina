@@ -1,0 +1,38 @@
+name: Publish Documentation pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies (customer-app)
+        run: |
+          cd customer-app
+          npm ci
+
+      - name: Generate Compodoc documentation
+        run: |
+          cd customer-app
+          npx compodoc -p tsconfig.app.json -d ../docs --silent
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
