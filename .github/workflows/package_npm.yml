@@ -1,0 +1,52 @@
+name: nuget and Test NPM Projects
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build-test-sonar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          registry-url: https://npm.pkg.github.com/
+
+      - name: Install dependencies and test (notifications)
+        run: |
+          cd notifications
+          npm ci
+          npm run test:cov
+
+      - name: Install dependencies and test (customer-app)
+        run: |
+          cd customer-app
+          npm ci
+          npm run test:cov
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          projectBaseDir: .
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Build and publish packages
+        run: |
+          cd notifications
+          npm version patch
+          npm publish --access public
+
+          cd ../customer-app
+          npm version patch
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
