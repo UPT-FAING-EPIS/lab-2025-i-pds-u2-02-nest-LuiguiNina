@@ -1,10 +1,9 @@
 name: Release Version
 
 on:
-  workflow_dispatch:
   push:
-    tags:
-      - 'v*.*.*'
+    branches:
+      - main  
 
 jobs:
   release:
@@ -19,19 +18,25 @@ jobs:
         with:
           node-version: 18
 
-      - name: Build release packages
+      - name: Build notifications
         run: |
           cd notifications
           npm ci
           npm run build
 
-          cd ../customer-app
+      - name: Build customer-app
+        run: |
+          cd customer-app
           npm ci
           npm run build
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref_name }}
+          name: "Automated Release ${{ github.run_number }}"
+          tag_name: "v1.0.${{ github.run_number }}"
+          body: |
+            Versión generada automáticamente por push a main.
+            Commit: ${{ github.sha }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
