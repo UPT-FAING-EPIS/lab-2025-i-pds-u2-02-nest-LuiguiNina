@@ -20,7 +20,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '20'  
 
       - name: Install dependencies
         run: |
@@ -32,7 +32,7 @@ jobs:
       - name: Generate documentation
         run: |
           npx @compodoc/compodoc -p customer-app/tsconfig.app.json -d docs/customer-app --silent
-          npx @compodoc/compodoc -p notifications/tsconfig.app.json -d docs/notifications --silent
+          npx @compodoc/compodoc -p notifications/tsconfig.json -d docs/notifications --silent
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
